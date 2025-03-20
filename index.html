@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Content Fetcher</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="url"] {
+            padding: 10px;
+            width: 70%;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin-right: 10px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 30px;
+            background-color: #fafafa;
+            border-radius: 8px;
+            padding: 15px;
+            color: #333;
+            font-size: 16px;
+            white-space: pre-wrap;
+            /* Ensures content wraps nicely */
+            word-wrap: break-word;
+            overflow: auto;
+        }
+
+        .result p {
+            margin-bottom: 10px;
+        }
+
+        .result h2 {
+            color: #007bff;
+        }
+
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .result {
+            overflow: auto;
+            height: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>URL Content Fetcher</h1>
+        <div class="input-group">
+            <input type="url" id="url-input" placeholder="Enter a URL here..." />
+            <button onclick="fetchContent()">Fetch Content</button>
+        </div>
+
+        <div class="result" id="result"> 
+        </div>
+        <div class="error" id="error-message"></div>
+    </div>
+
+    <script>
+        async function fetchContent() {
+            const url = document.getElementById('url-input').value;
+            const resultDiv = document.getElementById('result');
+            const errorMessageDiv = document.getElementById('error-message');
+            resultDiv.innerHTML = '';  // Reset previous results
+            errorMessageDiv.innerHTML = '';  // Reset error message
+
+            if (!url) {
+                errorMessageDiv.textContent = 'Please enter a valid URL.';
+                return;
+            }
+
+            try {
+                // Send a request to your backend API to fetch the content
+                const response = await fetch(`http://localhost:3000/extract-links?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+
+                if (response.ok) {  // Log the content to the console for debugging
+                    console.log(data.links);  // data.links should contain the array of links
+                    resultDiv.innerHTML = `<h2>Extracted Links:</h2><ul>${data.links.map((link, index) => `<li>${index + 1}. <br/> <a href="${link}">${link}</a></li>`).join('')}</ul>`;
+                } else {
+                    throw new Error(data.error || 'Error extracting links');
+                }
+            } catch (error) {
+                console.error(error);
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+
+        }
+    </script>
+</body>
+
+</html>
